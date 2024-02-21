@@ -19,41 +19,49 @@ color_encoding = {
 #Constraints
 #num of objects
 #Probablity of it being the same color or different color
-#Size of matrix
+#Size of matrix min(10,10)
 #action no action
 
-def background(rows, cols, color_inventory) -> [np.array,[str,...]]: #Need to implement diagonal lines
-    "Returns the matrix which will either contain zeros or a shape that will be considered in the background"
-    choice = random.choices(["empty", "solid", "lines", "noise", "objects"], weights=[4, 2, 2, 1,1])
-    matrix = np.zeros((rows, cols), dtype=int)
 
-    if choice == "empty":
-        return matrix, ["empty_background"]
+class matrix_generator:
+    def __init__(self, rows, cols, shape_size):
+        self.shape_size = shape_size
+        self.colors = []
+        self.rows = rows
+        self.cols = cols
+        self.background_color = random.choice(self.colors) - color
+        self.instruction_tags = []
 
-    elif choice == "solid":
-        "Select whether the solid background will be in the center or offset"
-        backdrop = random.choices(["center", "offset"])
-        return matrix, ["solid_background"]
+    def background(self) -> np.array: #Need to implement diagonal lines
+        choice = random.choices(["empty", "solid", "lines", "noise", "objects"], weights=[4, 2, 2, 1,1])
+        matrix = np.zeros((self.rows, self.cols), dtype=int)
 
-    elif choice == "lines":
-        backdrop = random.choices(["vertical", "horizontal", "diagonal"])
+        if choice == "empty":
+            self.instruction_tags.append("empty_background")
+            return matrix
 
-        if backdrop == "horizontal":
-            return hf.gen_horizontal_lines(rows, cols, color), ["horizontal_lines"]
+        elif choice == "solid": #CANNOT BE THE SAME COLOR
+            "Select whether the solid background will be in the center or offset"
+            backdrop = random.choices(["center", "offset"])
+            matrix = hf.gen_square_background(self.rows, self.cols, )
+            self.instruction_tags.append("solid_background")
+            return matrix
 
-        elif backdrop == "vertical":
-            return hf.gen_vertical_lines(rows, cols, color), ["vertical_lines"]
+        elif choice == "lines":
+            backdrop = random.choices(["vertical", "horizontal", "diagonal"])
 
-    elif choice == "noise":
-        noise = []
-        gen_noisy_matrix
+            if backdrop == "horizontal":
+                self.instruction_tags.append("horizontal_lines")
+                return hf.gen_horizontal_lines(rows, cols, color)
 
+            elif backdrop == "vertical":
+                self.instruction_tags.append("vertical_lines")
+                return hf.gen_vertical_lines(rows, cols, color)
 
+        elif choice == "noise":
+            noise = []
+            gen_noisy_matrix
 
-    #Lines: Vertical or Horizontal
-    #Noise
-
-    pass
 
 def target_object(shape_size):
     pass

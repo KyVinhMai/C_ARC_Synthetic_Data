@@ -74,6 +74,12 @@ def gen_noisy_matrix(rows, cols, noise_level, color: int):
 
     return matrix
 
+def gen_square_background(rows, cols, color):
+    matrix = np.zeros((rows, cols), dtype=int)
+    row = col = np.random.randint(rows * 0.7, rows)
+    matrix[1:row, 1:col] = color
+    return matrix
+
 
 # Example usage:
 rows = 10
