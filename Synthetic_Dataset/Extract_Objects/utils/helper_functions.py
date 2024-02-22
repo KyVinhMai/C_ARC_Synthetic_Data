@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 def generate_one_diagonal_line(rows, cols):
     matrix = np.zeros((rows, cols), dtype=int)
@@ -46,44 +47,45 @@ def generate_diagonal_lines(rows, cols, num_lines):
 
 def gen_horizontal_lines(rows, cols, color: int):
     matrix = np.zeros((rows, cols), dtype=int)
-
     # Generate horizontal lines in between each row
     for i in range(1, rows, 2):
         matrix[i, :] = color
-
     return matrix
 
-def gen_vertical_lines(rows, cols, color):
+def gen_vertical_lines(rows, cols, color:int):
     matrix = np.zeros((rows, cols), dtype=int)
-
-    # Generate vertical lines in between each column
     for j in range(1, cols, 2):
         matrix[:, j] = color
-
     return matrix
 
-
-def gen_noisy_matrix(rows, cols, noise_level, color: int):
-    matrix = np.zeros((rows, cols), dtype=int)  # Generate a random binary matrix
-
+def gen_noisy_matrix(rows, cols, color:int, noise_level: float=0.0001):
+    matrix = np.zeros((rows, cols), dtype=int)
     # Inject random noise
     for i in range(rows):
         for j in range(cols):
             if sum(np.random.binomial(9, 0.01, 20) == 1)/20 < noise_level:
-                matrix[i, j] = color  # Flip the value randomly
+                matrix[i, j] = color
 
     return matrix
 
-def gen_square_background(rows, cols, color):
+def gen_square_background(rows, cols, color:int):
+    offset = random.choices([True, False], weights=[7,3])[0] #Todo, figure out if we want to consider a colored background to be it's own object
+
+    if offset:
+        matrix = np.zeros((rows, cols), dtype=int)
+        row = col = np.random.randint(rows * 0.8, rows)
+        matrix[1:row, 1:col] = color
+        return matrix
+
     matrix = np.zeros((rows, cols), dtype=int)
-    row = col = np.random.randint(rows * 0.7, rows)
-    matrix[1:row, 1:col] = color
+    matrix.fill(color)
+
     return matrix
 
 
 # Example usage:
-rows = 10
-cols = 10
-noise_level = 0.0001  # Adjust the noise level as desired
-noisy_matrix = generate_noisy_matrix(rows, cols, noise_level, 2)
-print(noisy_matrix)
+# rows = 10
+# cols = 10
+# noise_level = 0.1  # Adjust the noise level as desired
+# noisy_matrix = gen_noisy_matrix(rows, cols, 2, noise_level)
+# print(noisy_matrix)

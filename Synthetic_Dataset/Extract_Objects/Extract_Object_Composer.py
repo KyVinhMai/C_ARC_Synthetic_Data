@@ -22,49 +22,73 @@ color_encoding = {
 #Size of matrix min(10,10)
 #action no action
 
-
 class matrix_generator:
     def __init__(self, rows, cols, shape_size):
         self.shape_size = shape_size
-        self.colors = []
+        self.color_inventory = [1, 2, 3, 4, 5, 6, 7, 8, 9]# Does not include 0
         self.rows = rows
         self.cols = cols
-        self.background_color = random.choice(self.colors) - color
-        self.instruction_tags = []
+        self.background_color = None
+        self.target_color = None
+        self.tags = {
+            "background": "",
+            "num_of_objects": "", #todo have background objects add to the count
+            "colors": []
+        }
 
-    def background(self) -> np.array: #Need to implement diagonal lines
-        choice = random.choices(["empty", "solid", "lines", "noise", "objects"], weights=[4, 2, 2, 1,1])
-        matrix = np.zeros((self.rows, self.cols), dtype=int)
+    def pick_color(self, replace=True):
+        if replace:
+            return np.random.choice(self.color_inventory)
+
+        color = np.random.choice(self.color_inventory)
+        self.color_inventory.remove(color)
+        return color
+
+    def background(self) -> np.array:
+        choice = random.choices(["empty", "solid", "lines", "noise"], weights=[3, 2, 2, 2])[0] #todo Implement Objects
 
         if choice == "empty":
-            self.instruction_tags.append("empty_background")
-            return matrix
+            self.tags['background'] = "empty"
+            return np.zeros((self.rows, self.cols), dtype=int)
 
-        elif choice == "solid": #CANNOT BE THE SAME COLOR
+        elif choice == "solid":
             "Select whether the solid background will be in the center or offset"
-            backdrop = random.choices(["center", "offset"])
-            matrix = hf.gen_square_background(self.rows, self.cols, )
-            self.instruction_tags.append("solid_background")
-            return matrix
+            self.background_color = self.pick_color(False)
+            self.tags['background'] = "solid"
+            return hf.gen_square_background(self.rows, self.cols, self.background_color)
 
         elif choice == "lines":
-            backdrop = random.choices(["vertical", "horizontal", "diagonal"])
+            backdrop = random.choice(["vertical", "horizontal"]) #todo implement diagonal lines
+            self.background_color = self.pick_color(True)
 
             if backdrop == "horizontal":
-                self.instruction_tags.append("horizontal_lines")
-                return hf.gen_horizontal_lines(rows, cols, color)
+                self.tags["background"] = "horizontal_lines"
+                return hf.gen_horizontal_lines(self.rows, self.cols, self.background_color)
 
             elif backdrop == "vertical":
-                self.instruction_tags.append("vertical_lines")
-                return hf.gen_vertical_lines(rows, cols, color)
+                self.tags["background"] = "vertical_lines"
+                return hf.gen_vertical_lines(self.rows, self.cols, self.background_color)
 
         elif choice == "noise":
-            noise = []
-            gen_noisy_matrix
+            self.tags["background"] = "noise"
+            self.background_color = self.pick_color(True)
+            return hf.gen_noisy_matrix(self.rows, self.cols, self.background_color)
 
 
-def target_object(shape_size):
-    pass
+    def target_object(self):
+        assert self.background_color not in self.tags["solid_background"], \
+            "Object is the same color as solid background"
+        shape = random.choices(["square", "circle", "sprite"], weights=[2, 1, 1])[0]
+
+        if shape == 'square':
+            row = np.random.randint(0, rows - shape_size + 1)
+            col = np.random.randint(0, cols - shape_size + 1)
+        elif shape ==
+
+
+    def apply_target_to_background(self):
+        pass
+
 
 def generate_random_matrix(rows, cols, num_shapes, shape_size, shape_type):
     matrix = np.zeros((rows, cols), dtype=int)
@@ -132,3 +156,12 @@ def visualize_matrix(matrix: str):
         for value in row:
             print(value, end=' ')
         print(']')
+
+if __name__ == "__main__":
+    gen = matrix_generator(10, 10, 5)
+    matrix = gen.background()
+    print(gen.tags)
+    print(gen.background_color)
+    print(gen.color_inventory)
+    print()
+    visualize_matrix(matrix)
